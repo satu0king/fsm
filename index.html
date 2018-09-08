@@ -1,6 +1,8 @@
 <!doctype html>
 <html><head>
 	<title>Finite State Machine Designer - by Evan Wallace</title>
+	<button onclick="generateJson()">Copy</button>
+	<button onclick="loadJson()">Load</button>
   <meta charset="utf-8">
 	<style>
 
@@ -94,6 +96,46 @@ if (typeof btoa == 'undefined') {
         }
         return encoded.join('');
     }
+}
+
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    console.log('Async: Copying to clipboard was successful!');
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
+
+
+
+
+const generateJson = () => {
+	copyTextToClipboard(localStorage.fsm);
+}
+const loadJson = () => {
+	localStorage.fsm = prompt("Enter JSON")
+	location.reload();
 }
 
 	</script>
