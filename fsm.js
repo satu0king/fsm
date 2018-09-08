@@ -384,7 +384,7 @@ function ExportAsLaTeX() {
 			'\\tikzstyle{every node}+=[inner sep=0pt]\n' +
 			this._texData +
 			'\\end{tikzpicture}\n' +
-			'\\end{center}\n' 
+			'\\end{center}\n'
 	};
 
 	this.beginPath = function() {
@@ -834,6 +834,7 @@ var shift = false;
 
 document.onkeydown = function(e) {
 	var key = crossBrowserKey(e);
+	console.log(key)
 
 	if(key == 16) {
 		shift = true;
@@ -992,43 +993,63 @@ function restoreBackup() {
 
 	try {
 		var backup = JSON.parse(localStorage['fsm']);
+		loadData(backup);
 
-		for(var i = 0; i < backup.nodes.length; i++) {
-			var backupNode = backup.nodes[i];
-			var node = new Node(backupNode.x, backupNode.y);
-			node.isAcceptState = backupNode.isAcceptState;
-			node.text = backupNode.text;
-			nodes.push(node);
-		}
-		for(var i = 0; i < backup.links.length; i++) {
-			var backupLink = backup.links[i];
-			var link = null;
-			if(backupLink.type == 'SelfLink') {
-				link = new SelfLink(nodes[backupLink.node]);
-				link.anchorAngle = backupLink.anchorAngle;
-				link.text = backupLink.text;
-			} else if(backupLink.type == 'StartLink') {
-				link = new StartLink(nodes[backupLink.node]);
-				link.deltaX = backupLink.deltaX;
-				link.deltaY = backupLink.deltaY;
-				link.text = backupLink.text;
-			} else if(backupLink.type == 'Link') {
-				link = new Link(nodes[backupLink.nodeA], nodes[backupLink.nodeB]);
-				link.parallelPart = backupLink.parallelPart;
-				link.perpendicularPart = backupLink.perpendicularPart;
-				link.text = backupLink.text;
-				link.lineAngleAdjust = backupLink.lineAngleAdjust;
-			}
-			if(link != null) {
-				links.push(link);
-			}
-		}
 	} catch(e) {
 		localStorage['fsm'] = '';
 	}
 }
 
+function loadData(backup){
+
+	for(var i = 0; i < backup.nodes.length; i++) {
+		var backupNode = backup.nodes[i];
+		var node = new Node(backupNode.x, backupNode.y);
+		node.isAcceptState = backupNode.isAcceptState;
+		node.text = backupNode.text;
+		nodes.push(node);
+	}
+	for(var i = 0; i < backup.links.length; i++) {
+		var backupLink = backup.links[i];
+		var link = null;
+		if(backupLink.type == 'SelfLink') {
+			link = new SelfLink(nodes[backupLink.node]);
+			link.anchorAngle = backupLink.anchorAngle;
+			link.text = backupLink.text;
+		} else if(backupLink.type == 'StartLink') {
+			link = new StartLink(nodes[backupLink.node]);
+			link.deltaX = backupLink.deltaX;
+			link.deltaY = backupLink.deltaY;
+			link.text = backupLink.text;
+		} else if(backupLink.type == 'Link') {
+			link = new Link(nodes[backupLink.nodeA], nodes[backupLink.nodeB]);
+			link.parallelPart = backupLink.parallelPart;
+			link.perpendicularPart = backupLink.perpendicularPart;
+			link.text = backupLink.text;
+			link.lineAngleAdjust = backupLink.lineAngleAdjust;
+		}
+		if(link != null) {
+			links.push(link);
+		}
+	}
+}
+
+backups=[]
+const undo = () =>{
+	if(window.backups.length>1){
+		window.backups.pop();
+		nodes=[]
+		links=[]
+		loadData(JSON.parse(window.backups.pop()));
+		draw();
+	}
+
+}
+
+
+
 function saveBackup() {
+
 	if(!localStorage || !JSON) {
 		return;
 	}
@@ -1081,5 +1102,12 @@ function saveBackup() {
 		}
 	}
 
+
 	localStorage['fsm'] = JSON.stringify(backup);
+	if(backups.length){
+		if(backups[backups.length-1]!=localStorage['fsm'])
+			backups.push(localStorage['fsm']);
+	}
+	else
+		backups.push(localStorage['fsm']);
 }
