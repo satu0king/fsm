@@ -3,6 +3,7 @@
 	<title>Finite State Machine Designer - by Evan Wallace</title>
 	<button onclick="generateJson()">Copy</button>
 	<button onclick="loadJson()">Load</button>
+	<button onclick="generateLatex()">CopyLatex</button>
 	<button onclick="clearJson()">Clear</button>
   <meta charset="utf-8">
 	<style>
@@ -133,6 +134,15 @@ function copyTextToClipboard(text) {
 
 const generateJson = () => {
 	copyTextToClipboard(localStorage.fsm);
+}
+const generateLatex = () => {
+	var exporter = new ExportAsLaTeX();
+	var oldSelectedObject = selectedObject;
+	selectedObject = null;
+	drawUsing(exporter);
+	selectedObject = oldSelectedObject;
+	var texData = exporter.toLaTeX();
+	copyTextToClipboard(texData);
 }
 const loadJson = () => {
 	localStorage.fsm = prompt("Enter JSON")
