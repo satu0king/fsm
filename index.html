@@ -3,6 +3,7 @@
 	<title>Finite State Machine Designer - by Evan Wallace</title>
 	<button onclick="generateJson()">Copy</button>
 	<button onclick="loadJson()">Load</button>
+	<button onclick="clearJson()">Clear</button>
   <meta charset="utf-8">
 	<style>
 
@@ -135,6 +136,10 @@ const generateJson = () => {
 }
 const loadJson = () => {
 	localStorage.fsm = prompt("Enter JSON")
+	location.reload();
+}
+const clearJson = () => {
+	localStorage.fsm =""
 	location.reload();
 }
 
